@@ -8,20 +8,20 @@ export class ReminderController {
     this.reminderService = new ReminderService();
   }
 
-  async createReminder(req: Request, res: Response): Promise<void> {
-    try {
-      const user_email = req.body.user_email;
-      if (!user_email) {
-        res.status(400).json({ message: 'Invalid reminder data' });
-        return;
-      }
-      const reminder = await this.reminderService.createReminder({ user_email });
-      res.status(201).json(reminder);
-    } catch (error) {
-      console.error('Error in ReminderController: createReminder', error);
-      res.status(500).json({ message: 'Internal Server Error' });
-    }
-  }
+  // async createReminder(req: Request, res: Response): Promise<void> {
+  //   try {
+  //     const user_email = req.body.user_email;
+  //     if (!user_email) {
+  //       res.status(400).json({ message: 'Invalid reminder data' });
+  //       return;
+  //     }
+  //     const reminder = await this.reminderService.createReminder({ user_email });
+  //     res.status(201).json(reminder);
+  //   } catch (error) {
+  //     console.error('Error in ReminderController: createReminder', error);
+  //     res.status(500).json({ message: 'Internal Server Error' });
+  //   }
+  // }
 
   async getReminderById(req: Request, res: Response): Promise<void> {
     try {
