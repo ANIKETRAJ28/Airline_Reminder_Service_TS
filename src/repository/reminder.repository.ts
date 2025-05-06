@@ -1,8 +1,6 @@
 import { Pool, PoolClient } from 'pg';
 import { IReminder, IReminderRequest } from '../interface/reminder.interface';
 import { getPool } from '../util/dbPool.util';
-import { ReminderSubject } from '../util/reminderSubject.util';
-import { ReminderBody } from '../util/reminderBody.util';
 
 export class ReminderRepository {
   private pool: Pool = getPool();
@@ -15,7 +13,7 @@ export class ReminderRepository {
         VALUES ($1, $2, $3, $4)
         RETURNING *;  
       `;
-      const values = [data.user_email, ReminderSubject(), ReminderBody(), new Date()];
+      const values = [data.user_email, data.subject, data.body, data.notification_time];
       const result = await client.query(query, values);
       const reminder: IReminder = result.rows[0];
       return reminder;
@@ -89,6 +87,21 @@ export class ReminderRepository {
       return result.rows;
     } catch (error) {
       console.log('Error in ReminderRepository: getPendingReminders', error);
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  async updateReminder(id: string): Promise<IReminder> {
+    const client: PoolClient = await this.pool.connect();
+    try {
+      const query = `UPDATE reminder SET status = 'sent' WHERE id = $1 RETURNING *`;
+      const response = await client.query(query, [id]);
+      const reminder: IReminder = response.rows[0];
+      return reminder;
+    } catch (error) {
+      console.log('Error in ReminderRepository: updateReminder', error);
       throw error;
     } finally {
       client.release();

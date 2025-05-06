@@ -58,6 +58,15 @@ export class ReminderService {
     }
   }
 
+  async updateReminder(id: string): Promise<IReminder> {
+    try {
+      return this.reminderRepository.updateReminder(id);
+    } catch (error) {
+      console.error('Error in ReminderService: updateReminder', error);
+      throw error;
+    }
+  }
+
   async deleteReminder(id: string): Promise<void> {
     try {
       await this.reminderRepository.deleteReminder(id);
