@@ -3,6 +3,8 @@ import { AIRLINE_MESSAGE_QUEUE_NAME, AIRLINE_MESSAGE_QUEUE_URL } from '../config
 import { ReminderService } from '../service/reminder.service';
 import { IQueue } from '../interface/queue.interface';
 import { mail } from '../util/mail.util';
+import { ReminderBody } from '../util/reminderBody.util';
+import { ReminderSubject } from '../util/reminderSubject.util';
 
 const reminderService = new ReminderService();
 
@@ -34,15 +36,36 @@ export async function subscribeToQueue(): Promise<void> {
           channel.consume(q.queue, (msg) => {
             if (msg?.content) {
               const payload: IQueue = JSON.parse(msg.content.toString());
+              const body = ReminderBody(
+                payload.reminder_data.flight_number,
+                payload.reminder_data.from_city,
+                payload.reminder_data.from_country,
+                payload.reminder_data.to_city,
+                payload.reminder_data.to_country,
+                payload.reminder_data.from_airport_name,
+                payload.reminder_data.from_airport_code,
+                payload.reminder_data.to_airport_name,
+                payload.reminder_data.to_airport_code,
+                payload.reminder_data.departure_time,
+                payload.reminder_data.arrival_time,
+                payload.reminder_data.booking_id,
+                payload.reminder_data.email,
+                payload.reminder_data.seat_number,
+                payload.reminder_data.seat_type,
+              );
+              const subject = ReminderSubject(
+                payload.reminder_data.flight_number,
+                payload.reminder_data.departure_time,
+              );
               reminderService.createReminder({
-                user_email: payload.email,
-                subject: payload.subject,
-                body: payload.body,
+                user_email: payload.reminder_data.email,
+                subject,
+                body,
                 status: 'pending',
                 notification_time: payload.notification_time,
               });
               mail.sendMail({
-                to: payload.email,
+                to: payload.reminder_data.email,
                 subject: payload.subject,
                 html: payload.body,
               });
